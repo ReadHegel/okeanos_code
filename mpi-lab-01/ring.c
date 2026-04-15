@@ -20,12 +20,22 @@ int main(int argc, char *argv[]) {
   int64_t message = 1;
 
   if (myRank == 0) {
+    double startTime;
+
+    double endTime;
+    double executionTime;
+    startTime = MPI_Wtime();
+
     MPI_Send(&message, 1, MPI_INT64_T, (myRank + 1) % numProcesses, 0,
              MPI_COMM_WORLD); /* pointer to the message */
     MPI_Recv(&message, 1, MPI_INT64_T, (myRank - 1 + numProcesses) % numProcesses,
              0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
+    endTime = MPI_Wtime();
+    executionTime = endTime - startTime;
+
     printf("Hello from 0 operation result: %ld\n", message);
+    printf("Execution time: %f seconds\n", executionTime);
 
   } else {
     MPI_Recv(&message, 1, MPI_INT64_T, (myRank - 1 + numProcesses) % numProcesses,
