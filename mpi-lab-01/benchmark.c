@@ -65,8 +65,8 @@ static void run_ping_pong(int rank, int experiments, int messageSize,
       double endTime = MPI_Wtime();
       roundTripTimesSec[i] = endTime - startTime;
 
-      printf("size=%dB trial=%d round-trip=%.6f ms\n", messageSize, i + 1,
-             roundTripTimesSec[i] * 1000.0);
+      //printf("size=%dB trial=%d round-trip=%.6f ms\n", messageSize, i + 1,
+       //      roundTripTimesSec[i] * 1000.0);
 
         MPI_Barrier(MPI_COMM_WORLD);
     }
@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
           (2.0 * (double)THROUGHPUT_SIZE_BYTES) / (avgRoundTripSec * 1024.0 * 1024.0);
       double latencyMs = (avgRoundTripSec * 1000.0) / 2.0;
 
-      printf("\n=== Throughput benchmark ===\n");
+      printf("\nThroughput benchmark\n");
       printf("message size: %d B\n", THROUGHPUT_SIZE_BYTES);
       printf("experiments: %d, discarded min/max each side: %d\n", experiments,
              discardEachSide);
@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
             trimmed_mean(times, experiments, discardEachSide);
         double latencyMs = (avgRoundTripSec * 1000.0) / 2.0;
 
-        printf("=== Latency benchmark ===\n");
+        printf("Latency benchmark\n");
         printf("message size: %d B\n", latencySizes[i]);
         printf("experiments: %d, discarded min/max each side: %d\n", experiments,
                discardEachSide);
