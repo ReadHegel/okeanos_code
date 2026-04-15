@@ -6,6 +6,6 @@
 #SBATCH --nodes 3                     # how many nodes we want
 #SBATCH --tasks-per-node 24           # each node is 2 socket, 12 core, so we want 24 tasks on each node
 #SBATCH --time 00:05:00               # if the job runs longer than this, it'll be killed
-#SBATCH --reservation=mimuwp          # our reservation; use mimuww for Wednesday or mimuwp for Friday
+#SBATCH --reservation=mimuws          # our reservation; use mimuww for Wednesday or mimuwp for Friday
 
 srun ./ring              # what command to run
