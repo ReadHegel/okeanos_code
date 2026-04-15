@@ -10,7 +10,7 @@
 
 #define DEFAULT_EXPERIMENTS 30
 #define DEFAULT_DISCARD_EACH_SIDE 2
-#define THROUGHPUT_SIZE_BYTES (5 * 1024 * 1024) // 5 MiB
+#define THROUGHPUT_SIZE_BYTES (20 * 1024 * 1024) // 20 MiB
 
 static int compare_doubles(const void *a, const void *b) {
   double da = *(const double *)a;
