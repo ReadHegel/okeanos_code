@@ -8,4 +8,4 @@
 #SBATCH --time 00:05:00               # if the job runs longer than this, it'll be killed
 #SBATCH --reservation=mimuws          # our reservation; use mimuww for Wednesday or mimuwp for Friday
 
-srun ./ben.exe           # what command to run
+srun ./benchmark.exe           # what command to run
