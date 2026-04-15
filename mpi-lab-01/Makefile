@@ -8,7 +8,7 @@ CC          := cc   # use cc on okeanos
 CFLAGS      := -O3 -c -Wall
 LFLAGS      := -O3
 # Add new targets below:
-ALL         := hello-world-seq.exe
+ALL         := hello-world-seq.exe ring.exe
 
 all : $(ALL)
 
