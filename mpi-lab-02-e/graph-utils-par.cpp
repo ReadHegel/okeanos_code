@@ -56,7 +56,8 @@ void collectAndPrintGraph(Graph* graph, int numProcesses, int myRank) {
     for (int i = 0; i < graph->numVertices; ++i) {
 
         std::cout<<"Owver before loop: owner = " << owner << std::endl;
-        if (getFirstGraphRowOfProcess(graph->numVertices, numProcesses, owner + 1) >= i) {
+
+        if (getFirstGraphRowOfProcess(graph->numVertices, numProcesses, owner + 1) <= i) {
             owner++;
         }
         std::cout<<"Owner after loop: owner = " << owner << std::endl;
