@@ -55,21 +55,15 @@ void collectAndPrintGraph(Graph* graph, int numProcesses, int myRank) {
     int currentRow = 0;
     for (int i = 0; i < graph->numVertices; ++i) {
 
-        std::cout<<"Owver before loop: owner = " << owner << std::endl;
-
         if (getFirstGraphRowOfProcess(graph->numVertices, numProcesses, owner + 1) <= i) {
             owner++;
         }
-        std::cout<<"Owner after loop: owner = " << owner << std::endl;
 
         if (myRank == owner) {
             row = graph->data[i - graph->firstRowIdxIncl];
-            std::cout<<i<<" "<<graph->firstRowIdxIncl<<" "<<graph->lastRowIdxExcl<<std::endl;
-            std::cout<<"row from owner: row = " << row << std::endl;
         } else {
             row = buffer;
         }
-        std::cout<<"row"<<row<<std::endl;
         MPI_Bcast(row, graph->numVertices, MPI_INT, owner, MPI_COMM_WORLD);
         printGraphRow(row, i, graph->numVertices);
     }
