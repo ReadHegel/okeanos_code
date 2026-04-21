@@ -66,6 +66,7 @@ void collectAndPrintGraph(Graph* graph, int numProcesses, int myRank) {
         } else {
             row = buffer;
         }
+        std::cout<<"row"<<row<<std::endl;
         MPI_Bcast(row, graph->numVertices, MPI_INT, owner, MPI_COMM_WORLD);
         printGraphRow(row, i, graph->numVertices);
     }
