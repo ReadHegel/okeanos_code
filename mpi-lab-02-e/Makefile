@@ -2,7 +2,7 @@
 # A template for the 2016 MPI lab at the University of Warsaw.
 # Copyright (C) 2016, Konrad Iwanicki.
 #
-CC          := mpic++  # or CC on okeanos
+CC          := cc  # or CC on okeanos
 # Available flags:
 # -DUSE_RANDOM_GRAPH=1   --- generates a random graph
 # -DUSE_RANDOM_SEED=123  --- uses a given seed to generate a random graph
