@@ -7,4 +7,4 @@
 #SBATCH --tasks-per-node 1           # each node is 2 socket, 12 core, so we want 24 tasks on each node
 #SBATCH --time 00:01:00               # if the job runs longer than this, it'll be killed
 
-srun ./generator-seq.exe # what command to run
+srun ./generator-seq.exe 10 # what command to run
