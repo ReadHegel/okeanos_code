@@ -12,10 +12,41 @@
 #include "graph-utils.h"
 
 
+int* broadcastKRow(Graph* graph, int k, int numProcesses, int myRank, int* buffer) {
+    int owner = 0;
+    for (int i = 0; i < numProcesses; ++i) {
+        if (getFirstGraphRowOfProcess(graph->numVertices, numProcesses, i + 1) <= k) {
+            owner++;
+        }
+    }
+
+    if (myRank == owner) {
+        buffer = graph->data[k - graph->firstRowIdxIncl];
+    }
+
+    MPI_Bcast(buffer, graph->numVertices, MPI_INT, owner, MPI_COMM_WORLD);
+    return buffer;
+}
+
 static void runFloydWarshallParallel(Graph* graph, int numProcesses, int myRank) {
     assert(numProcesses <= graph->numVertices);
 
     /* FIXME: implement */
+    int m = graph->numVertices;
+
+    int* buffer = new int[m];
+    for (int k = 0; k < m; ++k) {
+        int* kRow = broadcastKRow(graph, k, numProcesses, myRank, buffer);
+
+        for (int i = graph->firstRowIdxIncl; i < graph->lastRowIdxExcl; ++i) {
+            for (int j = 0; j < m; ++j) {
+                int pathSum = kRow[i - graph->firstRowIdxIncl] + kRow[j];
+                if (graph->data[i][j] > pathSum) {
+                    graph->data[i][j] = pathSum;
+                }
+            }
+        }
+    }
 }
 
 
