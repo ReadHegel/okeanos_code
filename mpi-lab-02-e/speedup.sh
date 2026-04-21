@@ -6,7 +6,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 
 PROGRAM_SEQ="./floyd-warshall-seq.exe"
 PROGRAM_PAR="./floyd-warshall-par.exe"
-SIZES=(10 100 1000 5000)
+SIZES=(10 100 1000 2000)
 NODES=(1 4 8 16)
 
 if [[ ! -x "$PROGRAM_SEQ" ]]; then
