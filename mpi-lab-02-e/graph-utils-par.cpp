@@ -59,7 +59,7 @@ void collectAndPrintGraph(Graph* graph, int numProcesses, int myRank) {
         } else {
             row = buffer;
         }
-        MPI_Bcast(row, graph->numVertices, MPI_INT, , MPI_COMM_WORLD);
+        MPI_Bcast(row, graph->numVertices, MPI_INT, owner, MPI_COMM_WORLD);
         printGraphRow(row, i, graph->numVertices);
     }
 }
