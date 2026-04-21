@@ -11,7 +11,10 @@
 
 int getFirstGraphRowOfProcess(int numVertices, int numProcesses, int myRank) {
     /* FIXME: implement */
-    return myRank;
+    int rowsPerProcess = numVertices / numProcesses;
+    int remainder = numVertices % numProcesses;
+    int firstRow = myRank * rowsPerProcess + (myRank < remainder ? myRank : remainder);
+    return firstRow;
 }
 
 Graph* createAndDistributeGraph(int numVertices, int numProcesses, int myRank) {
@@ -41,6 +44,24 @@ void collectAndPrintGraph(Graph* graph, int numProcesses, int myRank) {
     assert(graph->firstRowIdxIncl >= 0 && graph->lastRowIdxExcl <= graph->numVertices);
 
     /* FIXME: implement */
+    int* buffer = new int[graph->numVertices];
+    int* row = NULL;
+    int owner = 0;
+    int currentRow = 0;
+    for (int i = 0; i < graph->numVertices; ++i) {
+
+        if (getFirstGraphRowOfProcess(graph->numVertices, numProcesses, owner + 1) > i) {
+            owner++;
+        }
+
+        if (myRank == owner) {
+            row = graph->data[i - graph->firstRowIdxIncl];
+        } else {
+            row = buffer;
+        }
+        MPI_Bcast(row, graph->numVertices, MPI_INT, , MPI_COMM_WORLD);
+        printGraphRow(row, i, graph->numVertices);
+    }
 }
 
 void destroyGraph(Graph* graph, int numProcesses, int myRank) {
