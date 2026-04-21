@@ -6,8 +6,8 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 
 PROGRAM_SEQ="./floyd-warshall-seq.exe"
 PROGRAM_PAR="./floyd-warshall-par.exe"
-SIZES=(10 10 1000)
-NODES=(1 4 16)
+SIZES=(10 100 1000 5000)
+NODES=(1 4 8 16)
 
 if [[ ! -x "$PROGRAM_SEQ" ]]; then
   echo "Error: $PROGRAM_SEQ not found or not executable. Run make first." >&2
