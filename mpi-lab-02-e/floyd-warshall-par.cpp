@@ -40,9 +40,9 @@ static void runFloydWarshallParallel(Graph* graph, int numProcesses, int myRank)
 
         for (int i = graph->firstRowIdxIncl; i < graph->lastRowIdxExcl; ++i) {
             for (int j = 0; j < m; ++j) {
-                int pathSum = kRow[i - graph->firstRowIdxIncl] + kRow[j];
-                if (graph->data[i][j] > pathSum) {
-                    graph->data[i][j] = pathSum;
+                int pathSum = graph->data[i - graph->firstRowIdxIncl][k] + kRow[j];
+                if (graph->data[i - graph->firstRowIdxIncl][j] > pathSum) {
+                    graph->data[i - graph->firstRowIdxIncl][j] = pathSum;
                 }
             }
         }
