@@ -36,8 +36,28 @@ Graph* createAndDistributeGraph(int numVertices, int numProcesses, int myRank) {
 
     /* FIXME: implement */
 
-    for (int i = graph->firstRowIdxIncl; i < graph->lastRowIdxExcl; ++i) {
-        initializeGraphRow(graph->data[i - graph->firstRowIdxIncl], i, graph->numVertices);
+    if (myRank == 0) { 
+        int owner = 0;
+        for (int k = 0; k < graph->numVertices; ++k) {
+            int* buffer = new int[graph->numVertices];
+
+            if (getFirstGraphRowOfProcess(graph->numVertices, numProcesses, owner + 1) <= k) {
+                owner++;
+            }
+
+            if (owner != 0) {
+                initializeGraphRow(buffer, k, graph->numVertices);
+                MPI_Send(buffer, graph->numVertices, MPI_INT, owner, 0, MPI_COMM_WORLD);
+            }
+            else {
+                initializeGraphRow(graph->data[k - graph->firstRowIdxIncl], k, graph->numVertices);
+            }
+        }
+    }
+    else {
+        for (int i = graph->firstRowIdxIncl; i < graph->lastRowIdxExcl; ++i) {
+            MPI_Recv(graph->data[i - graph->firstRowIdxIncl], graph->numVertices, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        } 
     }
 
     return graph;
@@ -53,19 +73,25 @@ void collectAndPrintGraph(Graph* graph, int numProcesses, int myRank) {
     int* row = NULL;
     int owner = 0;
     int currentRow = 0;
-    for (int i = 0; i < graph->numVertices; ++i) {
 
-        if (getFirstGraphRowOfProcess(graph->numVertices, numProcesses, owner + 1) <= i) {
-            owner++;
-        }
+    if (myRank == 0) {
+        for (int k = 0; k < graph->numVertices; ++k) {
+            if (getFirstGraphRowOfProcess(graph->numVertices, numProcesses, owner + 1) <= k) {
+                owner++;
+            }
 
-        if (myRank == owner) {
-            row = graph->data[i - graph->firstRowIdxIncl];
-        } else {
-            row = buffer;
+            if (owner != 0) {
+                MPI_Recv(buffer, graph->numVertices, MPI_INT, owner, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                printGraphRow(buffer, k, graph->numVertices);
+            }
+            else {
+                printGraphRow(graph->data[k - graph->firstRowIdxIncl], k, graph->numVertices);
+            }
         }
-        MPI_Bcast(row, graph->numVertices, MPI_INT, owner, MPI_COMM_WORLD);
-        printGraphRow(row, i, graph->numVertices);
+    } else {
+        for (int i = graph->firstRowIdxIncl; i < graph->lastRowIdxExcl; ++i) {
+            MPI_Send(graph->data[i - graph->firstRowIdxIncl], graph->numVertices, MPI_INT, 0, 0, MPI_COMM_WORLD);
+        }
     }
 }
 
