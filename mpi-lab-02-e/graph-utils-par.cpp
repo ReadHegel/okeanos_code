@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <mpi.h>
+#include <iostream>
 #include "graph-base.h"
 #include "graph-utils.h"
 
@@ -50,9 +51,11 @@ void collectAndPrintGraph(Graph* graph, int numProcesses, int myRank) {
     int currentRow = 0;
     for (int i = 0; i < graph->numVertices; ++i) {
 
-        if (getFirstGraphRowOfProcess(graph->numVertices, numProcesses, owner + 1) > i) {
+        std::cout<<"Owver before loop: owner = " << owner << std::endl;
+        if (getFirstGraphRowOfProcess(graph->numVertices, numProcesses, owner + 1) >= i) {
             owner++;
         }
+        std::cout<<"Owner after loop: owner = " << owner << std::endl;
 
         if (myRank == owner) {
             row = graph->data[i - graph->firstRowIdxIncl];
