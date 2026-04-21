@@ -36,6 +36,10 @@ Graph* createAndDistributeGraph(int numVertices, int numProcesses, int myRank) {
 
     /* FIXME: implement */
 
+    for (int i = graph->firstRowIdxIncl; i < graph->lastRowIdxExcl; ++i) {
+        initializeGraphRow(graph->data[i - graph->firstRowIdxIncl], i, graph->numVertices);
+    }
+
     return graph;
 }
 
