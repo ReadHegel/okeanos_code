@@ -4,7 +4,7 @@
 #SBATCH --error "logs/bench-%j.err"    # stderr redirection
 #SBATCH --account "g105-2692"         # the number of our grant
 #SBATCH --nodes 1                   # how many nodes we want
-#SBATCH --tasks-per-node 1           # each node is 2 socket, 12 core, so we want 24 tasks on each node
+#SBATCH --tasks-per-node 5           # each node is 2 socket, 12 core, so we want 24 tasks on each node
 #SBATCH --time 00:01:00               # if the job runs longer than this, it'll be killed
 
 srun ./generator-par.exe 10 # what command to run
