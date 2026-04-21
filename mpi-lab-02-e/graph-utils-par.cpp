@@ -63,6 +63,7 @@ void collectAndPrintGraph(Graph* graph, int numProcesses, int myRank) {
 
         if (myRank == owner) {
             row = graph->data[i - graph->firstRowIdxIncl];
+            std::cout<<"row from owner: row = " << row << std::endl;
         } else {
             row = buffer;
         }
