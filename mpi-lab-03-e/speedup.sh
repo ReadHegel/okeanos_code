@@ -7,7 +7,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 PROGRAM_SEQ="./build/laplace-seq.exe"
 PROGRAM_PAR="./build/laplace-par.exe"
 SIZES=(100 200 500 1000)
-NODES=(1 2 4 8)
+NODES=(1 8 16)
 
 if [[ ! -x "$PROGRAM_SEQ" ]]; then
   echo "Error: $PROGRAM_SEQ not found or not executable. Run cmake and make first." >&2
