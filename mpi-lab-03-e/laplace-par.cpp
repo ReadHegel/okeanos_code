@@ -93,6 +93,12 @@ static void sync_com(GridFragment *frag, int myRank, int numProcesses) {
     } 
 }
 
+static bool stop(double maxDiff, double epsilon, int myRank, int numProcesses) {
+    double globalMaxDiff;
+    MPI_Allreduce(&maxDiff, &globalMaxDiff, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+    return globalMaxDiff > epsilon;
+}
+
 static std::tuple<int, double> performAlgorithm(
   int myRank, int numProcesses, GridFragment *frag, double omega, double epsilon) {
     
@@ -133,7 +139,7 @@ static std::tuple<int, double> performAlgorithm(
             }
         }
         ++numIterations;
-    } while (maxDiff > epsilon);
+    } while (stop(maxDiff, epsilon, myRank, numProcesses));
     /* no code changes beyond this point should be needed */
     return std::make_tuple(numIterations, maxDiff);
 }
