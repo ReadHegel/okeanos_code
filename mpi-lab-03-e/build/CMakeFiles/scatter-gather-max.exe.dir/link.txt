@@ -1,0 +1,1 @@
+/usr/bin/mpicxx -Wl,--dependency-file=CMakeFiles/scatter-gather-max.exe.dir/link.d "CMakeFiles/scatter-gather-max.exe.dir/scatter-gather-max.cpp.o" -o scatter-gather-max.exe

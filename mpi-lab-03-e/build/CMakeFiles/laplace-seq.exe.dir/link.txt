@@ -1,0 +1,1 @@
+/usr/bin/mpicxx -Wl,--dependency-file=CMakeFiles/laplace-seq.exe.dir/link.d "CMakeFiles/laplace-seq.exe.dir/laplace-common.cpp.o" "CMakeFiles/laplace-seq.exe.dir/laplace-seq.cpp.o" -o laplace-seq.exe
