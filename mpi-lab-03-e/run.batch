@@ -7,4 +7,4 @@
 #SBATCH --ntasks-per-node 1        # one MPI process per node
 #SBATCH --time 00:01:00               # if the job runs longer than this, it'll be killed
 
-srun ./build/laplace-par.exe --verbose 10
+srun ./build/laplace-seq.exe --verbose 10
