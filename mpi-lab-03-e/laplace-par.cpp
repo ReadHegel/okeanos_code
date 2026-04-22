@@ -69,28 +69,76 @@ static InputOptions parseInput(int argc, char * argv[], int numProcesses) {
 
 static void sync_com(GridFragment *frag, int myRank, int numProcesses) {
     int messageSize = (frag->gridDimension + 1) / 2;
+    for (int color = 0; color < 2; ++color) {
+        if (myRank % 2 == 0) {
+            if (myRank != numProcesses - 1) { 
+                MPI_Sendrecv(GetRow(frag, frag->lastRowIdxExcl - 1, color), messageSize, MPI_DOUBLE, myRank + 1, PRINT_MSG_TAG,
+                            GetRow(frag, frag->lastRowIdxExcl, color), messageSize, MPI_DOUBLE, myRank + 1, PRINT_MSG_TAG,
+                            MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            }
+            if (myRank != 0) {
+                MPI_Sendrecv(GetRow(frag, frag->firstRowIdxIncl, color), messageSize, MPI_DOUBLE, myRank - 1, PRINT_MSG_TAG,
+                            GetRow(frag, frag->firstRowIdxIncl - 1, color), messageSize, MPI_DOUBLE, myRank - 1, PRINT_MSG_TAG,
+                            MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            }
+        }
+        else {
+            MPI_Sendrecv(GetRow(frag, frag->firstRowIdxIncl, color), messageSize, MPI_DOUBLE, myRank - 1, PRINT_MSG_TAG,
+                        GetRow(frag, frag->firstRowIdxIncl - 1, color), messageSize, MPI_DOUBLE, myRank - 1, PRINT_MSG_TAG,
+                        MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            if (myRank != numProcesses - 1) {
+                MPI_Sendrecv(GetRow(frag, frag->lastRowIdxExcl - 1, color), messageSize, MPI_DOUBLE, myRank + 1, PRINT_MSG_TAG,
+                            GetRow(frag, frag->lastRowIdxExcl, color), messageSize, MPI_DOUBLE, myRank + 1, PRINT_MSG_TAG,
+                            MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            }
+        } 
+    }
+}
+
+static void async_send(GridFragment *frag, int color, int myRank, int numProcesses, MPI_Request* requests, MPI_Status* statuses, int* count_requests) {
+    int messageSize = (frag->gridDimension + 1) / 2;
+
     if (myRank % 2 == 0) {
         if (myRank != numProcesses - 1) { 
-            MPI_Sendrecv(&GP(frag, frag->lastRowIdxExcl - 1, 0), messageSize, MPI_DOUBLE, myRank + 1, PRINT_MSG_TAG,
-                        &GP(frag, frag->lastRowIdxExcl, 0), messageSize, MPI_DOUBLE, myRank + 1, PRINT_MSG_TAG,
-                        MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Isend(GetRow(frag, frag->lastRowIdxExcl - 1, color), messageSize, MPI_DOUBLE, myRank + 1, PRINT_MSG_TAG,
+                    MPI_COMM_WORLD, &requests[(*count_requests)++]);
         }
         if (myRank != 0) {
-            MPI_Sendrecv(&GP(frag, frag->firstRowIdxIncl, 0), messageSize, MPI_DOUBLE, myRank - 1, PRINT_MSG_TAG,
-                        &GP(frag, frag->firstRowIdxIncl - 1, 0), messageSize, MPI_DOUBLE, myRank - 1, PRINT_MSG_TAG,
-                        MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Isend(GetRow(frag, frag->firstRowIdxIncl, color), messageSize, MPI_DOUBLE, myRank - 1, PRINT_MSG_TAG,
+                    MPI_COMM_WORLD, &requests[(*count_requests)++]);
         }
     }
     else {
-        MPI_Sendrecv(&GP(frag, frag->firstRowIdxIncl, 0), messageSize, MPI_DOUBLE, myRank - 1, PRINT_MSG_TAG,
-                    &GP(frag, frag->firstRowIdxIncl - 1, 0), messageSize, MPI_DOUBLE, myRank - 1, PRINT_MSG_TAG,
-                    MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Isend(GetRow(frag, frag->firstRowIdxIncl, color), messageSize, MPI_DOUBLE, myRank - 1, PRINT_MSG_TAG,
+                    MPI_COMM_WORLD, &requests[(*count_requests)++]);
         if (myRank != numProcesses - 1) {
-            MPI_Sendrecv(&GP(frag, frag->lastRowIdxExcl - 1, 0), messageSize, MPI_DOUBLE, myRank + 1, PRINT_MSG_TAG,
-                        &GP(frag, frag->lastRowIdxExcl, 0), messageSize, MPI_DOUBLE, myRank + 1, PRINT_MSG_TAG,
-                        MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Isend(GetRow(frag, frag->lastRowIdxExcl - 1, color), messageSize, MPI_DOUBLE, myRank + 1, PRINT_MSG_TAG,
+                    MPI_COMM_WORLD, &requests[(*count_requests)++]);
         }
     } 
+}
+
+static void async_recv(GridFragment *frag, int color, int myRank, int numProcesses, MPI_Request* requests, MPI_Status* statuses, int* count_requests) {
+    int messageSize = (frag->gridDimension + 1) / 2;
+
+    if (myRank % 2 == 0) {
+        if (myRank != numProcesses - 1) { 
+            MPI_Irecv(GetRow(frag, frag->lastRowIdxExcl, color), messageSize, MPI_DOUBLE, myRank + 1, PRINT_MSG_TAG,
+                    MPI_COMM_WORLD, &requests[(*count_requests)++]);
+        }
+        if (myRank != 0) {
+            MPI_Irecv(GetRow(frag, frag->firstRowIdxIncl - 1, color), messageSize, MPI_DOUBLE, myRank - 1, PRINT_MSG_TAG,
+                    MPI_COMM_WORLD, &requests[(*count_requests)++]);
+        }
+    }
+    else {
+        MPI_Irecv(GetRow(frag, frag->firstRowIdxIncl - 1, color), messageSize, MPI_DOUBLE, myRank - 1, PRINT_MSG_TAG,
+                    MPI_COMM_WORLD, &requests[(*count_requests)++]);
+        if (myRank != numProcesses - 1) {
+            MPI_Irecv(GetRow(frag, frag->lastRowIdxExcl, color), messageSize, MPI_DOUBLE, myRank + 1, PRINT_MSG_TAG,
+                    MPI_COMM_WORLD, &requests[(*count_requests)++]);
+        }
+    }
 }
 
 static bool stop(double maxDiff, double epsilon, int myRank, int numProcesses) {
@@ -113,11 +161,30 @@ static std::tuple<int, double> performAlgorithm(
     /* and computation of the grid */
     /* the following code just recomputes the appropriate grid fragment */
     /* but does not communicate the partial results */
+
+    MPI_Request* requests = new MPI_Request[4 * numProcesses];
+    MPI_Status* statuses = new MPI_Status[4 * numProcesses];
+    int count_requests = 0;
+
+    async_send(frag, 0, myRank, numProcesses, requests, statuses, &count_requests);
+    async_recv(frag, 0, myRank, numProcesses, requests, statuses, &count_requests);
+    MPI_Waitall(count_requests, requests, statuses);
+
+    count_requests = 0;
+    async_send(frag, 1, myRank, numProcesses, requests, statuses, &count_requests);
+    async_recv(frag, 1, myRank, numProcesses, requests, statuses, &count_requests);
+
     do {
-        sync_com(frag, myRank, numProcesses);
+        // sync_com(frag, myRank, numProcesses);
 
         maxDiff = 0.0;
         for (int color = 0; color < 2; ++color) {
+
+            // Send other color
+            MPI_Waitall(count_requests, requests, statuses);
+            async_send(frag, 1 - color, myRank, numProcesses, requests, statuses, &count_requests);
+            async_recv(frag, 1 - color, myRank, numProcesses, requests, statuses, &count_requests);
+
             for (int rowIdx = startRowIncl; rowIdx < endRowExcl; ++rowIdx) {
                 for (int colIdx = 1 + (rowIdx % 2 == color ? 1 : 0); 
                      colIdx < frag->gridDimension - 1; 

@@ -16,6 +16,8 @@
  */
 #define GP(fp, i, j) ((fp)->data[((i) + (j)) % 2][(i) - (fp)->firstRowIdxIncl + 1][(j) / 2])
 
+#define GetRow(fp, i, color) ((fp)->data[color][(i) - (fp)->firstRowIdxIncl + 1])
+
 #define PRINT_MSG_TAG 543
 
 class InputOptions {
