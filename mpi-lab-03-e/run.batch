@@ -3,8 +3,8 @@
 #SBATCH --output "logs/speedup-%j.out"   # stdout redirection
 #SBATCH --error "logs/speedup-%j.err"    # stderr redirection
 #SBATCH --account "g105-2692"         # the number of our grant
-#SBATCH --nodes 1                 # reserve enough nodes for 1/4/16-node runs
+#SBATCH --nodes 5                 # reserve enough nodes for 1/4/16-node runs
 #SBATCH --ntasks-per-node 1        # one MPI process per node
 #SBATCH --time 00:01:00               # if the job runs longer than this, it'll be killed
 
-srun ./build/laplace-seq.exe --verbose 10
+srun ./build/laplace-par.exe --verbose 10

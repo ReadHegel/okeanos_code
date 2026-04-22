@@ -67,6 +67,30 @@ static InputOptions parseInput(int argc, char * argv[], int numProcesses) {
     return {numPointsPerDimension, verbose, errorCode};
 }
 
+static void sync_com(GridFragment *frag, int myRank, int numProcesses) {
+    int messageSize = (frag->gridDimension + 1) / 2;
+    if (myRank % 2 == 0) { 
+        if (myRank != 0) {
+            MPI_Sendrecv(&GP(frag, frag->lastRowIdxExcl - 1, 0), messageSize, MPI_DOUBLE, myRank + 1, PRINT_MSG_TAG,
+                        &GP(frag, frag->lastRowIdxExcl, 0), messageSize, MPI_DOUBLE, myRank + 1, PRINT_MSG_TAG,
+                        MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        }
+        MPI_Sendrecv(&GP(frag, frag->firstRowIdxIncl, 0), messageSize, MPI_DOUBLE, myRank - 1, PRINT_MSG_TAG,
+                    &GP(frag, frag->firstRowIdxIncl - 1, 0), messageSize, MPI_DOUBLE, myRank - 1, PRINT_MSG_TAG,
+                    MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+    else {
+        if (myRank != numProcesses - 1) {
+            MPI_Sendrecv(&GP(frag, frag->firstRowIdxIncl, 0), messageSize, MPI_DOUBLE, myRank - 1, PRINT_MSG_TAG,
+                        &GP(frag, frag->firstRowIdxIncl - 1, 0), messageSize, MPI_DOUBLE, myRank - 1, PRINT_MSG_TAG,
+                        MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        }
+        MPI_Sendrecv(&GP(frag, frag->lastRowIdxExcl - 1, 0), messageSize, MPI_DOUBLE, myRank + 1, PRINT_MSG_TAG,
+                    &GP(frag, frag->lastRowIdxExcl, 0), messageSize, MPI_DOUBLE, myRank + 1, PRINT_MSG_TAG,
+                    MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    } 
+}
+
 static std::tuple<int, double> performAlgorithm(
   int myRank, int numProcesses, GridFragment *frag, double omega, double epsilon) {
     
@@ -82,6 +106,8 @@ static std::tuple<int, double> performAlgorithm(
     /* the following code just recomputes the appropriate grid fragment */
     /* but does not communicate the partial results */
     do {
+        sync_com(frag, myRank, numProcesses);
+        
         maxDiff = 0.0;
         for (int color = 0; color < 2; ++color) {
             for (int rowIdx = startRowIncl; rowIdx < endRowExcl; ++rowIdx) {
