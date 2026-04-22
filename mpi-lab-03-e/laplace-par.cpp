@@ -69,10 +69,12 @@ static InputOptions parseInput(int argc, char * argv[], int numProcesses) {
 
 static void sync_com(GridFragment *frag, int myRank, int numProcesses) {
     int messageSize = (frag->gridDimension + 1) / 2;
-    if (myRank % 2 == 0) { 
-        MPI_Sendrecv(&GP(frag, frag->lastRowIdxExcl - 1, 0), messageSize, MPI_DOUBLE, myRank + 1, PRINT_MSG_TAG,
-                    &GP(frag, frag->lastRowIdxExcl, 0), messageSize, MPI_DOUBLE, myRank + 1, PRINT_MSG_TAG,
-                    MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    if (myRank % 2 == 0) {
+        if (myRank != numProcesses - 1) { 
+            MPI_Sendrecv(&GP(frag, frag->lastRowIdxExcl - 1, 0), messageSize, MPI_DOUBLE, myRank + 1, PRINT_MSG_TAG,
+                        &GP(frag, frag->lastRowIdxExcl, 0), messageSize, MPI_DOUBLE, myRank + 1, PRINT_MSG_TAG,
+                        MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        }
         if (myRank != 0) {
             MPI_Sendrecv(&GP(frag, frag->firstRowIdxIncl, 0), messageSize, MPI_DOUBLE, myRank - 1, PRINT_MSG_TAG,
                         &GP(frag, frag->firstRowIdxIncl - 1, 0), messageSize, MPI_DOUBLE, myRank - 1, PRINT_MSG_TAG,
