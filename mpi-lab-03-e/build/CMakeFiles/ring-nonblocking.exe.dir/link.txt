@@ -1,1 +1,0 @@
-/usr/bin/mpicxx -Wl,--dependency-file=CMakeFiles/ring-nonblocking.exe.dir/link.d "CMakeFiles/ring-nonblocking.exe.dir/ring-nonblocking.cpp.o" -o ring-nonblocking.exe
