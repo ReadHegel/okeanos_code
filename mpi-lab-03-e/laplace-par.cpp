@@ -162,15 +162,15 @@ static std::tuple<int, double> performAlgorithm(
     /* the following code just recomputes the appropriate grid fragment */
     /* but does not communicate the partial results */
 
-    MPI_Request* requests = new MPI_Request[4 * numProcesses];
-    MPI_Status* statuses = new MPI_Status[4 * numProcesses];
+    MPI_Request requests[4 * numProcesses];
+    MPI_Status statuses[4 * numProcesses];
     int count_requests = 0;
 
     async_send(frag, 0, myRank, numProcesses, requests, statuses, &count_requests);
     async_recv(frag, 0, myRank, numProcesses, requests, statuses, &count_requests);
     MPI_Waitall(count_requests, requests, statuses);
-
     count_requests = 0;
+
     async_send(frag, 1, myRank, numProcesses, requests, statuses, &count_requests);
     async_recv(frag, 1, myRank, numProcesses, requests, statuses, &count_requests);
 
@@ -182,6 +182,8 @@ static std::tuple<int, double> performAlgorithm(
 
             // Send other color
             MPI_Waitall(count_requests, requests, statuses);
+            count_requests = 0;
+
             async_send(frag, 1 - color, myRank, numProcesses, requests, statuses, &count_requests);
             async_recv(frag, 1 - color, myRank, numProcesses, requests, statuses, &count_requests);
 
