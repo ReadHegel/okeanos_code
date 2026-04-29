@@ -60,6 +60,5 @@ int main(int argc, char* argv[]) {
 
     elapsed = finishTime - startTime;
     std::cout << "Synchronous elapsed time: "<< elapsed.count() << "[s]" << std::endl;
-
 }
 
