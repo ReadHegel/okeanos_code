@@ -7,6 +7,18 @@
 #include <random>
 #include <chrono>
 
+void sync_mm(int n, double* A, double* B, double* C) {
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            C[i*n + j] = 0;
+            for (int k = 0; k < n; ++k) {
+                C[i*n + j] += A[i*n + k] * B[k*n + j];
+            }
+        }
+    }
+}
+
+
 int main(int argc, char* argv[]) {
     if (argc < 2) {
         std::cerr << "invocation: " <<argv[0]<<" matrix_size " << std::endl;
@@ -37,7 +49,17 @@ int main(int argc, char* argv[]) {
                 n, n, n,
                 1.0, A, n, B, n, 0.0, C, n);
     auto finishTime = std::chrono::steady_clock::now();
+
     std::chrono::duration<double> elapsed{finishTime - startTime};
     std::cout << "CBLAS elapsed time: "<< elapsed.count() << "[s]" << std::endl;
+
+    //benchamr sync_mm
+    startTime = std::chrono::steady_clock::now();
+    sync_mm(n, A, B, C);
+    finishTime = std::chrono::steady_clock::now();
+
+    elapsed = finishTime - startTime;
+    std::cout << "Synchronous elapsed time: "<< elapsed.count() << "[s]" << std::endl;
+
 }
 
