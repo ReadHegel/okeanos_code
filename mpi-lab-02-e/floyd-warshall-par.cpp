@@ -19,6 +19,7 @@ int* broadcastKRow(Graph* graph, int k, int numProcesses, int myRank, int* buffe
             owner++;
         }
     }
+    printf("Owner of row %d is process %d\n", k, owner);
 
     if (myRank == owner) {
         buffer = graph->data[k - graph->firstRowIdxIncl];
