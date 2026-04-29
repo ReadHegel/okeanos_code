@@ -35,10 +35,7 @@ static double* allocateCurrentPointRow(int numPointsPerDimension) {
 
 static void freePoints(double** points, int numPointsPerDimension) {
     if (points != nullptr) {
-        for (int i = 0; i < numPointsPerDimension; ++i) {
-            freePointRow(points[i]);
-        }
-
+        delete(points[0]);
         delete(points);
     }
 }
@@ -50,13 +47,9 @@ static double** allocatePoints(int numPointsPerDimension) {
         points[i] = nullptr;
     }
 
+    points[0] = new double[numPointsPerDimension * numPointsPerDimension];
     for (int i = 0; i < numPointsPerDimension; ++i) {
-        points[i] = allocateCurrentPointRow(numPointsPerDimension);
-
-        if (points[i] == nullptr) {
-            freePoints(points, numPointsPerDimension);
-            return nullptr;
-        }
+        points[i] = points[i-1] + numPointsPerDimension * sizeof(double);
     }
 
     return points;
